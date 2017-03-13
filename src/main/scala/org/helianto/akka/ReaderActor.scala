@@ -1,15 +1,12 @@
 package org.helianto.akka
 
-import java.io.File
-
 import akka.actor.{Actor, ActorLogging, Props}
 import org.apache.pdfbox.pdmodel.PDDocument
 import technology.tabula.ObjectExtractor
 import technology.tabula.extractors.BasicExtractionAlgorithm
 
-
 /**
-  * ReaderActor
+  * Reader actor
   */
 class ReaderActor extends Actor with ActorLogging {
 
@@ -18,7 +15,7 @@ class ReaderActor extends Actor with ActorLogging {
   val extractorActor = context.actorOf(Props[ExtractorActor], "extractor")
 
   override def receive = {
-    case fileName:String =>
+    case fileName: String =>
       try {
         val stream = getClass.getResourceAsStream(fileName)
         val document = PDDocument.load(stream)
@@ -29,7 +26,7 @@ class ReaderActor extends Actor with ActorLogging {
           for {
             page <- oe.extract.asScala
             table <- extractor.extract(page).asScala
-          } extractorActor ! table
+          } println(table) //extractorActor ! table
         }
         finally {
           document.close()
@@ -37,7 +34,8 @@ class ReaderActor extends Actor with ActorLogging {
         }
       }
       catch {
-        case e: Throwable => log.error(s"Unable to extract data.", e)
+        case e: Throwable =>
+          log.error(s"Unable to read $fileName.", e)
       }
   }
 
