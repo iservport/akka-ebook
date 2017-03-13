@@ -26,7 +26,7 @@ class ReaderActor extends Actor with ActorLogging {
           for {
             page <- oe.extract.asScala
             table <- extractor.extract(page).asScala
-          } println(table) //extractorActor ! table
+          } extractorActor ! table
         }
         finally {
           document.close()
